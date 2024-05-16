@@ -18,7 +18,8 @@ public class HeaderLineDto {
     private String header;
     @Setter
     private String body;
-
+    @Setter
+    private String author;
     @Setter
     private String date;
     @JsonProperty("URL")
