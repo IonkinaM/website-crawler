@@ -1,6 +1,8 @@
 package com.guthub.marinkay.client;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.TotalHits;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
@@ -8,6 +10,7 @@ import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.guthub.marinkay.dtos.HeaderLineDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +30,7 @@ public class ElasticDbClient {
     private final String serverUrl;
     private final String apiKey;
 
-    public ElasticsearchClient createClient(){
+    public ElasticsearchClient createClient() {
         RestClient restClient = RestClient
                 .builder(HttpHost.create(serverUrl))
                 .setDefaultHeaders(new Header[]{
@@ -42,7 +45,8 @@ public class ElasticDbClient {
         ElasticsearchClient elasticsearchClient = new ElasticsearchClient(elasticsearchTransport);
         return elasticsearchClient;
     }
-    public void createIndexesInElasticSearchDb(ElasticsearchClient elasticsearchClient){
+
+    public static void createIndexesInElasticSearchDb(ElasticsearchClient elasticsearchClient) {
         try {
             BooleanResponse indexRes = elasticsearchClient.indices().exists(ex -> ex.index(NEWS_HEADER_LINE_INDEX));
             if (!indexRes.value()) {
@@ -57,10 +61,35 @@ public class ElasticDbClient {
                                 .properties("date", p -> p.date(d -> d.format("strict_date_optional_time")))
                         ));
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Something went wrong when create indexes");
         }
+    }
 
+    //revert
+    public static boolean checkNewsHeaderLineExist(ElasticsearchClient elcClient, String id) {
+        SearchResponse<HeaderLineDto> response = null;
+        try {
+            response = elcClient.search(s -> s
+                            .index(NEWS_HEADER_LINE_INDEX)
+                            .query(q -> q
+                                    .match(t -> t
+                                            .field("id")
+                                            .query(id)
+                                    )
+                            ),
+                    HeaderLineDto.class
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Something whent wrong when searching data");
+        }
+        TotalHits total = response.hits().total();
+        if (total != null && total.value() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
