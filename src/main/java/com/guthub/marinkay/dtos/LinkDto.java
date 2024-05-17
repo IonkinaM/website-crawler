@@ -13,9 +13,14 @@ public class LinkDto {
     private Integer level;
     private String url;
 
-    public LinkDto(String url, Integer level) throws NoSuchAlgorithmException {
-        this.id = Arrays.toString(MessageDigest.getInstance("MD5").digest(url.getBytes(StandardCharsets.UTF_8)));
-        this.url = url;
-        this.level = level;
+    public LinkDto(String url, Integer level) {
+        try {
+            this.id = Arrays.toString(MessageDigest.getInstance("MD5").digest(url.getBytes(StandardCharsets.UTF_8)));
+            this.url = url;
+            this.level = level;
+        } catch (NoSuchAlgorithmException e){
+            e.printStackTrace();
+            throw new RuntimeException("Something went wrong in link constructor");
+        }
     }
 }

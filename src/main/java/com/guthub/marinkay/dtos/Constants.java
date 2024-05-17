@@ -7,7 +7,7 @@ public class Constants {
     public static final String ELASTIC_API_KEY = "";
     public static final String NEWS_HEADER_LINE_INDEX = "news_header_line";
     public static final String QUEUE_DATA_NAME = "crawler_data_queue";
-    public static final String URL_QUEUE_NAME = "crawler_url_queue";
+    public static final String QUEUE_URL_NAME = "crawler_url_queue";
     public static final String RMQ_HOST_NAME = "localhost";
     public static final int RMQ_PORT = 5672;
     public static final String RMQ_USERNAME = "guest";
