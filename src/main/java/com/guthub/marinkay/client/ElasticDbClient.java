@@ -27,10 +27,8 @@ import static com.guthub.marinkay.dtos.Constants.NEWS_HEADER_LINE_INDEX;
 @RequiredArgsConstructor
 @Data
 public class ElasticDbClient {
-    private final String serverUrl;
-    private final String apiKey;
 
-    public ElasticsearchClient createClient() {
+    public static ElasticsearchClient createClient(String serverUrl, String apiKey) {
         RestClient restClient = RestClient
                 .builder(HttpHost.create(serverUrl))
                 .setDefaultHeaders(new Header[]{

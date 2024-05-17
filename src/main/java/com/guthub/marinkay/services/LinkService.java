@@ -28,14 +28,14 @@ public class LinkService {
     public Deque<LinkDto> urlQueueResult = new ArrayDeque<LinkDto>();
     private static final Logger LOGGER = LoggerFactory.getLogger(LinkService.class);
 
-    public LinkService(int depth, String inputBaseUrl, Channel rmqChannel,ElasticsearchClient elasticsearchClient) throws NoSuchAlgorithmException {
+    public LinkService(int depth, String inputBaseUrl, Channel rmqChannel,ElasticsearchClient elasticsearchClient) {
         baseUrl = inputBaseUrl;
         urlQueue.add(new LinkDto(baseUrl, 0));
         depthValue = depth;
         rmqChan = rmqChannel;
         elcClient = elasticsearchClient;
     }
-    public void processLink() throws IOException, NoSuchAlgorithmException {
+    public void processLink() {
         for (int i = 0; i < depthValue; ++i) {
             parse();
             LOGGER.info(Thread.currentThread().getName() + "START");
@@ -57,6 +57,17 @@ public class LinkService {
             String newUrl;
             for (Element link : links) {
                 newUrl = link.attr("abs:href");
+                if (
+                        !newUrl.startsWith(baseUrl + "/politics/2024/") &&
+                                !newUrl.startsWith(baseUrl + "/incident/2024/") &&
+                                !newUrl.startsWith(baseUrl + "/culture/2024/") &&
+                                !newUrl.startsWith(baseUrl + "/social/2024/") &&
+                                !newUrl.startsWith(baseUrl + "/economics/2024/") &&
+                                !newUrl.startsWith(baseUrl + "/science/2024/") &&
+                                !newUrl.startsWith(baseUrl + "/sport/2024/")
+                ) {
+                    continue;
+                }
                 if (newUrl.endsWith("#")) {
                     newUrl = newUrl.substring(0, newUrl.length() - 1);
                 }
