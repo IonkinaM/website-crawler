@@ -1,9 +1,12 @@
 package com.guthub.marinkay.amqp;
 
+import com.guthub.marinkay.services.LinkService;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -14,7 +17,12 @@ public class AmqpInitializator {
     private Connection connection;
     @Getter
     private Channel channel;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AmqpInitializator.class);
+    public AmqpInitializator(){
+        initAmqp();
+    }
     public void initAmqp(){
+        LOGGER.info("Init AMQP");
         try {
             ConnectionFactory factory = new ConnectionFactory();
             factory.setHost(RMQ_HOST_NAME);
@@ -32,9 +40,11 @@ public class AmqpInitializator {
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
         }
+        LOGGER.info("AMQP Initiated");
 
     }
     public void stopAmqp(){
+        LOGGER.info("STOP AMQP");
         try {
             channel.close();
             connection.close();
@@ -43,7 +53,7 @@ public class AmqpInitializator {
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
         }
-
+        LOGGER.info("AMQP STOPPED");
     }
 
 }
