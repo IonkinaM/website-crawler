@@ -23,6 +23,7 @@ public class HeaderLineDto {
     @Setter
     private String date;
     @JsonProperty("URL")
+    @Setter
     private String url;
 
     public void SetId() throws NoSuchAlgorithmException {
