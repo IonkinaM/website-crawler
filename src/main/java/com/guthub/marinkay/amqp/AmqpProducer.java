@@ -35,7 +35,7 @@ public class AmqpProducer {
             }
         }
     }
-    public void produceToQueue(String url, Document doc) throws IOException {
+    private void produceToQueue(String url, Document doc) throws IOException {
         try {
             HeaderLineDto newsHeadline = new HeaderLineDto();
             newsHeadline.setHeader(doc.select("div [class=article__title]").get(0).text());
