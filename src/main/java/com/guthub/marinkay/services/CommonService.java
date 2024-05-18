@@ -1,5 +1,6 @@
 package com.guthub.marinkay.services;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import com.guthub.marinkay.amqp.AmqpProducer;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
@@ -14,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.guthub.marinkay.dtos.Constants.QUEUE_DATA_NAME;
 import static com.guthub.marinkay.dtos.Constants.QUEUE_URL_NAME;
 
 public class CommonService {
@@ -45,7 +47,7 @@ public class CommonService {
                     responseWatingsCount = 0;
                     Thread.sleep(100);
                 } else {
-                    Thread.sleep(1000);
+                    Thread.sleep(10000);
                     responseWatingsCount++;
                     LOGGER.info("Waiting messages in " + QUEUE_URL_NAME);
                 }
@@ -62,7 +64,42 @@ public class CommonService {
             throw new RuntimeException(e);
         }
     }
-    private void produceMessagesToDataQueue(Map<String, Document> docs, Channel channel){
+    public static void readDataFromQueueAndPutToElastic(Channel channel, ElasticsearchClient elasticsearchClient){
+        try {
+            ElasticSearchService elasticSearchService = new ElasticSearchService(elasticsearchClient);
+            channel.basicConsume(QUEUE_DATA_NAME, false, "consumerUrlData", new DefaultConsumer(channel) {
+                @Override
+                public void handleDelivery(String consumerTag,
+                                           Envelope envelope,
+                                           AMQP.BasicProperties properties,
+                                           byte[] body)
+                        throws IOException {
+                    long deliveryTag = envelope.getDeliveryTag();
+                    String message = new String(body, StandardCharsets.UTF_8);
+                    LOGGER.info("Get " + message + "  ");
+                    elasticSearchService.consume(message);
+                    channel.basicAck(deliveryTag, false);
+                }
+            });
+            Integer retryCount = 3;
+            Integer responseWatingsCount = 0;
+            while (responseWatingsCount < retryCount) {
+                AMQP.Queue.DeclareOk response = channel.queueDeclarePassive(QUEUE_DATA_NAME);
+                if (response.getMessageCount() != 0) {
+                    responseWatingsCount = 0;
+                    Thread.sleep(100);
+                } else {
+                    Thread.sleep(10000);
+                    responseWatingsCount++;
+                    LOGGER.info("Waiting messages in " + QUEUE_DATA_NAME);
+                }
+            }
+            channel.basicCancel("consumerUrlData");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 }

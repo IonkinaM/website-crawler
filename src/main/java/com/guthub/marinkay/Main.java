@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import static com.guthub.marinkay.client.ElasticDbClient.createClient;
 import static com.guthub.marinkay.client.ElasticDbClient.createIndexesInElasticSearchDb;
 import static com.guthub.marinkay.dtos.Constants.*;
+import static com.guthub.marinkay.services.CommonService.readDataFromQueueAndPutToElastic;
 import static com.guthub.marinkay.services.CommonService.runHtmlParsing;
 
 public class Main {
@@ -22,6 +23,7 @@ public class Main {
         LinkService linkService = new LinkService(URL_DEBPTH,WEBSITE_PATH,amqpInitializator.getChannel(),elasticsearchClient);
         linkService.processLink();
         runHtmlParsing(amqpInitializator.getChannel());
+        readDataFromQueueAndPutToElastic(amqpInitializator.getChannel(),elasticsearchClient);
         amqpInitializator.stopAmqp();
     }
 }
