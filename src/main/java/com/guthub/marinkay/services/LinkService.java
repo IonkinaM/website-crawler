@@ -56,7 +56,6 @@ public class LinkService {
             Elements links = doc.select("a[href]");
             Integer limitNumberOfNews = 10;
             Integer count = 0;
-            System.out.println(links);
             for (Element link : links) {
                 String newUrl = link.attr("abs:href");
                 if (
