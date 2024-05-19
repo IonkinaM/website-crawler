@@ -56,7 +56,7 @@ public class ElasticDbClient {
                                 .properties("header", p -> p.text(d -> d.fielddata(true)))
                                 .properties("author", p -> p.text(d -> d.fielddata(true)))
                                 .properties("URL", p -> p.keyword(d -> d))
-                                .properties("date", p -> p.date(d -> d.format("strict_date_optional_time")))
+                                .properties("date", p -> p.text(d -> d.fielddata(true)))
                         ));
             }
         } catch (IOException e) {

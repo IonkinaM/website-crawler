@@ -54,19 +54,20 @@ public class LinkService {
             Integer level = linkDto.getLevel() + 1;
             Document doc = Jsoup.connect(linkDto.getUrl()).get();
             Elements links = doc.select("a[href]");
-            Integer limitNumberOfNews = 100;
+            Integer limitNumberOfNews = 10;
             Integer count = 0;
+            System.out.println(links);
             for (Element link : links) {
+                String newUrl = link.attr("abs:href");
+                if (
+                        !newUrl.startsWith("https://matchtv.ru/football/matchtvnews")
+                ) {
+                    continue;
+                }
                 if(count == limitNumberOfNews){
                     break;
                 }
                 count++;
-                String newUrl = link.attr("abs:href");
-                if (
-                        !newUrl.startsWith("https://matchtv.ru"+"/football/rossija")
-                ) {
-                    continue;
-                }
                 if (newUrl.endsWith("#")) {
                     newUrl = newUrl.substring(0, newUrl.length() - 1);
                 }
@@ -82,7 +83,6 @@ public class LinkService {
             }
         } catch (IOException e){
             e.printStackTrace();
-            throw new RuntimeException("Something went wrong when parse link");
         }
 
     }

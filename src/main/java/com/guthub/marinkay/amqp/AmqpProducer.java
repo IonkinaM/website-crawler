@@ -10,6 +10,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +22,13 @@ import static com.guthub.marinkay.dtos.Constants.QUEUE_DATA_NAME;
 
 public class AmqpProducer {
     private Channel amqpChannel;
-    private  ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(AmqpProducer.class);
+
     public AmqpProducer(Channel channel) {
         amqpChannel = channel;
     }
+
     public void parseNews(Map<String, Document> docs) throws InterruptedException, IOException {
         if (docs.isEmpty()) {
             LOGGER.warn("Docs is empty");
@@ -35,14 +39,26 @@ public class AmqpProducer {
             }
         }
     }
+
     private void produceToQueue(String url, Document doc) throws IOException {
         try {
             HeaderLineDto newsHeadline = new HeaderLineDto();
-            newsHeadline.setHeader(doc.select("div [class=WidgetArticle__root--9bI7h]").get(0).text());
-            newsHeadline.setAuthor(doc.select("li [class=WidgetArticle__authors--RQEI2__name]").get(0).text());
-            newsHeadline.setBody(doc.select("div [class=article__content js-mediator-article]").get(0).text());
-            String date = doc.attr("article:published_time");
-            newsHeadline.setDate(date);
+            Elements header = doc.select("div [class=WidgetArticle__root--9bI7h ]");
+            Elements author = doc.select("div [class=WidgetArticle__authors--RQEI2__name]");
+            Elements body = doc.select("div [class=article__content js-mediator-article]");
+            Elements date = doc.select("div [class=WidgetArticle__time--3-hwC]");
+            if (!header.isEmpty()) {
+                newsHeadline.setHeader(header.get(0).text());
+            }
+            if (!author.isEmpty()) {
+                newsHeadline.setAuthor(author.get(0).text());
+            }
+            if (!body.isEmpty()) {
+                newsHeadline.setBody(body.get(0).text());
+            }
+            if (!date.isEmpty()) {
+                newsHeadline.setDate(body.get(0).text());
+            }
             newsHeadline.setUrl(url);
             newsHeadline.SetId();
             amqpChannel.basicPublish("", QUEUE_DATA_NAME, null, mapper.writeValueAsBytes(newsHeadline));
