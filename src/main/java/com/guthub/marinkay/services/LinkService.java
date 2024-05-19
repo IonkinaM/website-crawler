@@ -54,19 +54,13 @@ public class LinkService {
             Integer level = linkDto.getLevel() + 1;
             Document doc = Jsoup.connect(linkDto.getUrl()).get();
             Elements links = doc.select("a[href]");
-            Integer limitNumberOfNews = 10;
-            Integer count = 0;
             for (Element link : links) {
                 String newUrl = link.attr("abs:href");
                 if (
-                        !newUrl.startsWith("https://matchtv.ru/football/matchtvnews")
+                        !newUrl.startsWith("https://matchtv.ru/football/matchtvnews")  && !newUrl.startsWith("https://matchtv.ru/hockey/matchtvnews")
                 ) {
                     continue;
                 }
-                if(count == limitNumberOfNews){
-                    break;
-                }
-                count++;
                 if (newUrl.endsWith("#")) {
                     newUrl = newUrl.substring(0, newUrl.length() - 1);
                 }
