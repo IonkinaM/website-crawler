@@ -1,7 +1,7 @@
 package com.guthub.marinkay.dtos;
 
 public class Constants {
-    public static final String WEBSITE_PATH = "https://crimea.mk.ru";
+    public static final String WEBSITE_PATH = "https://matchtv.ru/news";
     public static final int URL_DEBPTH = 1;
     public static final String ELASTIC_URL = "http://localhost:9200";
     public static final String ELASTIC_API_KEY = "";

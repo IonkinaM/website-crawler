@@ -38,16 +38,10 @@ public class AmqpProducer {
     private void produceToQueue(String url, Document doc) throws IOException {
         try {
             HeaderLineDto newsHeadline = new HeaderLineDto();
-            newsHeadline.setHeader(doc.select("div [class=article__title]").get(0).text());
-            newsHeadline.setAuthor(doc.select("li [class=article__author-text-link]").get(0).text());
-            newsHeadline.setBody(doc.select("div [class=article__body]").get(0).text());
-            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
-            String timeString = doc.select("time").get(0).attr("datetime");
-            String timeZoneOffset = timeString.substring(timeString.length() - 5);
-            String formattedDateTimeString = timeString.substring(0, timeString.length() - 5) + timeZoneOffset;
-            DateTime dateTime = dateTimeFormatter.parseDateTime(formattedDateTimeString);
-            DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
-            String date = formatter.print(dateTime);
+            newsHeadline.setHeader(doc.select("div [class=WidgetArticle__root--9bI7h]").get(0).text());
+            newsHeadline.setAuthor(doc.select("li [class=WidgetArticle__authors--RQEI2__name]").get(0).text());
+            newsHeadline.setBody(doc.select("div [class=article__content js-mediator-article]").get(0).text());
+            String date = doc.attr("article:published_time");
             newsHeadline.setDate(date);
             newsHeadline.setUrl(url);
             newsHeadline.SetId();
