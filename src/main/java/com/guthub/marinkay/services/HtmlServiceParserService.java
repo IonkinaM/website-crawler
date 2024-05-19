@@ -28,7 +28,7 @@ public class HtmlServiceParserService {
     }
     public void parseHtmlPage(String url) {
         try {
-            LOGGER.info(" Request will send for url - '" + url + "'" + "  " + Thread.currentThread().getName());
+            LOGGER.info("Send request");
             boolean stopRetryFlag = false;
             int retryCount = 3;
             for (int iTry = 0; iTry < retryCount && !stopRetryFlag; iTry++) {
